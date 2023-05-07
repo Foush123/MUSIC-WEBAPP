@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Music Webapp</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+		}
+		h1 {
+			color: #333333;
+			text-align: center;
+			margin-top: 50px;
+		}
+		.container {
+			max-width: 800px;
+			margin: auto;
+			padding: 20px;
+			background-color: #ffffff;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+			margin-top: 50px;
+		}
+		.form {
+			display: flex;
+			flex-wrap: wrap;
+			margin-bottom: 20px;
+		}
+		.form input[type="file"] {
+			display: none;
+		}
+		.form label {
+			flex-basis: 100%;
+			margin-bottom: 10px;
+			background-color: #f8f8f8;
+			padding: 10px;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+		}
+			.form label:hover {
+			background-color: #e8e8e8;
+		}
+		.form button {
+			margin-left: auto;
+			padding: 10px 20px;
+			background-color: #4CAF50;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+		}
+		.form button:hover {
+			background-color: #3e8e41;
+		}
+		.songs {
+			margin-bottom: 20px;
+		}
+		.song {
+			display: flex;
+			align-items: center;
+			background-color: #f8f8f8;
+			padding: 10px;
+			border-radius: 5px;
+			margin-bottom: 10px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+		}
+		.song:hover {
+			background-color: #e8e8e8;
+		}
+		.song span {
+			flex-basis: 80%;
+			margin-right: 10px;
+		}
+		.song button {
+			padding: 5px 10px;
+			background-color: #4CAF50;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+		}
+		.song button:hover {
+			background-color: #3e8e41;
+		}
+		.controls {
+			display: flex;
+			align-items: center;
+			margin-top: 20px;
+		}
+		.controls button {
+			padding: 10px 20px;
+			background-color: #4CAF50;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			margin-right: 10px;
+		}
+		.controls button:hover {
+			background-color: #3e8e41;
+		}
+		.progress {
+			width: 100%;
+			height: 5px;
+			background-color: #e8e8e8;
+			border-radius: 5px;
+			position: relative;
+			margin-top: 10px;
+			overflow: hidden;
+		}
+		.progress-bar {
+			background-color: #4CAF50;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			transition: all 0.2s ease-in-out;
+		}
+	</style>
+</head>
+<body>
+	<h1>Music Webapp</h1>
+	<div class="container">
+		<form class="form">
+			<label for="file">Choose a song to add</label>
+			<input type="file" id="file" accept="audio/*">
+			<button type="button" onclick="addSong()">Add</button>
+		</form>
+		<div class="songs"></div>
+		<div class="controls">
+			<button type="button" onclick="play()">Play</button>
+			<button type="button" onclick="pause()">Pause</button>
+			<input type="range" id="seek" min="0" max="100" value="0" step="0.1" oninput="seek()">
+		</div>
+		<div class="progress">
+			<div class="progress-bar"></div>
+		</div>
+	</div>
+
+	<script>
+		const audio = new Audio();
+		let songs = [];
+
+		const songsElement = document.querySelector(".songs");
+		const progressBarElement = document.querySelector(".progress-bar");
+
+		function addSong() {
+			const fileInput = document.querySelector("#file");
+			const file = fileInput.files[0];
+			if (file.type.startsWith("audio/")) {
+				const song = { name: file.name, url: URL.createObjectURL(file) };
+				songs.push(song);
+				displaySongs();
+			} else {
+				alert("Please choose an audio file");
+			}
+		}
+
+		function displaySongs() {
+			songsElement.innerHTML = "";
+			songs.forEach((song, index) => {
+				const songElement = document.createElement("div");
+				songElement.classList.add("song");
+				songElement.innerHTML = `<span>${song.name}</span><button type="button" onclick="playSong(${index})">Play</button>`;
+				songsElement.appendChild(songElement);
+			});
+		}
+
+		function playSong(index) {
+			const song = songs[index];
+			audio.src = song.url;
+			audio.play();
+			updateProgressBar();
+		}
+
+		function play() {
+			audio.play();
+		}
+
+		function pause() {
+			audio.pause();
+		}
+
+		function seek() {
+			const seekElement = document.querySelector("#seek");
+			const value = seekElement.value;
+			const duration = audio.duration;
+			const currentTime = duration * value / 100;
+			audio.currentTime = currentTime;
+		}
+
+		function updateProgressBar() {
+			const duration = audio.duration;
+			const currentTime = audio.currentTime;
+			const percentage = currentTime / duration * 100;
+			progressBarElement.style.width = `${percentage}%`;
+			setTimeout(updateProgressBar, 1000);
+		}
+	</script>
+</body>
+</html>
